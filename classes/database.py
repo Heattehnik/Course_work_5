@@ -18,7 +18,7 @@ class DatabaseConnector:
     cursor = connect.cursor()
 
 
-class HHVacancy(DatabaseConnector):
+class DBManager(DatabaseConnector):
     """
     Класс для обработки вакансий полученных с hh.ru
     """

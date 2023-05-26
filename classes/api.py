@@ -1,6 +1,8 @@
 import requests as req
+from database import DBManager
 
-class HeadHunterAPI():
+
+class HeadHunterAPI:
     """
     Класс для взаимодействия с API HeadHunter
     """
@@ -35,4 +37,4 @@ class HeadHunterAPI():
 
     def add_vacancies(self):
         for vacancy in self.vacancies:
-            HHVacancy(vacancy)
+            DBManager(vacancy)
