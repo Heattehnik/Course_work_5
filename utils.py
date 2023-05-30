@@ -12,12 +12,18 @@ def get_employers(emp_ids: list) -> list:
 
 
 def get_vacancies_by_company():
+    with psycopg2.connect(host='45.141.102.19', database='headhunter', user='roman', password='2901') as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT hh_id FROM employers')
+            employers = cur.fetchall()
+        for company in employers:
+            something = company[0]
+            print(something)
 
 
+def add_employers_to_db(employers_list:list) -> None:
 
-def add_employers_to_db(employers:list) -> None:
-
-    for employer in employers:
+    for employer in employers_list:
         with psycopg2.connect(host='45.141.102.19', database='headhunter', user='roman', password='2901') as conn:
             employer_id = int(employer["id"])
             with conn.cursor() as cur:
@@ -36,18 +42,10 @@ def add_employers_to_db(employers:list) -> None:
                                 (employer["id"], employer["name"], employer["description"], employer["alternate_url"]))
 
 
-def add_vacancies_to_db() -> list:
-    with psycopg2.connect(host='45.141.102.19', database='headhunter', user='roman', password='2901') as conn:
-        with conn.cursor() as cur:
-            cur.execute('SELECT hh_id FROM employers')
-            employers = cur.fetchall()
-    return employers
-
-
 if __name__ == '__main__':
     top_companies = [3529, 1740, 80]
     employers = get_employers(top_companies)
     add_employers_to_db(employers)
-    some = add_vacancies_to_db()
-    print(some)
+    get_vacancies_by_company()
+
 
