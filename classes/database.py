@@ -29,20 +29,6 @@ class DBManager(DatabaseConnector):
 
     def __init__(self) -> None:
         super().__init__()
-        # self.platform = 'HeadHunter'
-        # self.vacancy_id = vacancy['id']
-        # self.title = vacancy['name']
-        # self.requirement = vacancy['snippet']['requirement']
-        # self.responsibility = vacancy['snippet']['responsibility']
-        # self.employer = vacancy['employer']['name']
-        # if vacancy.get('salary'):
-        #     if vacancy.get('salary').get('from'):
-        #         self.salary_from = vacancy.get('salary').get('from')
-        #     if vacancy.get('salary').get('to'):
-        #         self.salary_to = vacancy['salary']['to']
-        #     self.currency = vacancy['salary']['currency']
-        # self.url = vacancy['alternate_url']
-        # self.all_vacancies.append(self)
 
     def create_tables(self):
         self.cursor.execute("""
@@ -66,6 +52,11 @@ class DBManager(DatabaseConnector):
         self.cursor.execute('DROP TABLE IF EXISTS vacancies')
         self.cursor.execute('DROP TABLE IF EXISTS companies')
         self.connect.commit()
+
+    def insert_data(self, data):
+        for item in data:
+            
+
     #
     # def __str__(self) -> str:
     #     return f'{self.title}\n{self.salary_from}\n{self.salary_to}\n{self.currency}'
