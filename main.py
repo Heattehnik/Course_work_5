@@ -6,6 +6,7 @@ def main() -> None:
     # Инициализируем экземпляр класса DBManager и создаем таблицы в базе данных
     db = DBManager()
     db.create_tables()
+    print('Пожалуйста ожидайте...')
     # Список ID компаний которые планируется добавить в базу
     companies_ids = [1740, 15478, 2180, 64174, 84585, 1057, 3776, 1122462, 2136954, 3590333]
     # Цикл для добавления компаний и вакансий в базу данных
@@ -17,7 +18,7 @@ def main() -> None:
         db.insert_data(company_data, vacancies_data)
     # Получаем список компаний с количеством вакансий в них и выводим в консоль
     count_companies_and_vacancies = db.get_companies_and_vacancies_count()
-
+    print('Количество вакансий в компаниях')
     for item in count_companies_and_vacancies:
         print(f'Компания: {item[0]}\n'
               f'Количество вакансий: {item[1]}\n')
@@ -25,7 +26,7 @@ def main() -> None:
     input('Нажмите Enter для продолжения.')
     # Выводим в консоль список всех вакансий
     all_vacancies = db.get_all_vacancies()
-
+    print('Все вакансии.')
     for item in all_vacancies:
         print(f'Компания: {item[0]}\n'
               f'Название вакансии: {item[1]}\n'
@@ -60,6 +61,13 @@ def main() -> None:
               f'Зарплата от: {item[3]}\n'
               f'Зарплата до: {item[4]}\n'
               f'Ссылка на вакансию: {item[5]}\n')
+
+    delete_answer = input('Желаете удалить таблицы из базы данных? (Да\Нет)\n')
+    if delete_answer.lower() == 'да':
+        db.drop_tables()
+        print('Данные успешно удалены, хорошего дня!')
+    else:
+        print('Данные сохранены, хорошего дня!')
 
 
 if __name__ == '__main__':
