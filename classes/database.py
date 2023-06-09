@@ -20,13 +20,8 @@ class DatabaseConnector:
 
 class DBManager(DatabaseConnector):
     """
-    Класс для обработки вакансий полученных с hh.ru
+    Класс миксин для подключения к базе данных
     """
-    all_vacancies = []
-    salary_from = 0
-    salary_to = 0
-    currency = 'RUR'
-
     def __init__(self) -> None:
         super().__init__()
 
@@ -36,15 +31,19 @@ class DBManager(DatabaseConnector):
             id serial PRIMARY KEY NOT NULL,
             name VARCHAR(50) NOT NULL,
             description TEXT,
+            city TEXT,
             url TEXT);        
         """)
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS vacancies (
+            CREATE TABLE IF NOT EXISTS vacancies 
+            (
             id serial PRIMARY KEY NOT NULL,
-            name VARCHAR(50) NOT NULL,
+            name VARCHAR(200) NOT NULL,
             company_id INTEGER REFERENCES companies(id),
-            city TEXT,
-            url TEXT);        
+            salary_min INTEGER,
+            salary_max INTEGER,
+            url TEXT
+            );        
         """)
         self.connect.commit()
 
@@ -53,9 +52,33 @@ class DBManager(DatabaseConnector):
         self.cursor.execute('DROP TABLE IF EXISTS companies')
         self.connect.commit()
 
-    def insert_data(self, data):
-        for item in data:
-            
+    def insert_data(self, company, vacancies):
+        self.cursor.execute(f'INSERT INTO companies (id, name, city, description, url) '
+                            f'VALUES (%s, %s, %s, %s, %s)',
+                            (
+                                int(company['id']),
+                                company['name'],
+                                company['area']['name'],
+                                company['description'],
+                                company['alternate_url'])
+                            )
+        self.connect.commit()
+        for item in vacancies['items']:
+            salary_from = None
+            salary_to = None
+            if item.get('salary'):
+                salary_from = item['salary']['from']
+                salary_to = item['salary']['to']
+            self.cursor.execute(f'INSERT INTO vacancies (name, company_id, salary_min, salary_max, url) '
+                                f'VALUES (%s, %s, %s, %s, %s)',
+                                (
+                                    item['name'],
+                                    item['employer']['id'],
+                                    salary_from,
+                                    salary_to,
+                                    item['alternate_url'])
+                                )
+            self.connect.commit()
 
     #
     # def __str__(self) -> str:
