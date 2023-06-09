@@ -80,33 +80,46 @@ class DBManager(DatabaseConnector):
                                 )
             self.connect.commit()
 
-    #
-    # def __str__(self) -> str:
-    #     return f'{self.title}\n{self.salary_from}\n{self.salary_to}\n{self.currency}'
-    #
-    # @classmethod
-    # def insert_data(cls) -> None:
-    #     """
-    #     Метод класса для записи полученных вакансий в базу данных
-    #     """
-    #     for vacancy in cls.all_vacancies:
-    #         cls.cursor.execute(f"SELECT * FROM vacancies WHERE title = '{vacancy.title}' AND "
-    #                            f"requirement = '{vacancy.requirement}'")
-    #         result = cls.cursor.fetchone()
-    #         if not result:
-    #             cls.cursor.execute('INSERT INTO vacancies (platform, vacancy_id, title, requirement, responsibility,'
-    #                                'employer, salary_from, salary_to, currency, url) VALUES (?,?,?,?,?,?,?,?,?,?)',
-    #                                (vacancy.platform, vacancy.vacancy_id, vacancy.title, vacancy.requirement,
-    #                                 vacancy.responsibility, vacancy.employer, vacancy.salary_from, vacancy.salary_to,
-    #                                 vacancy.currency, vacancy.url))
-    #             cls.connect.commit()
-    #
-    # @classmethod
-    # def delete_from_db(cls) -> None:
-    #     """Удаление результата работы метода insert_data"""
-    #     for vacancy in cls.all_vacancies:
-    #         cls.cursor.execute(f"DELETE FROM vacancies WHERE vacancy_id = '{vacancy.vacancy_id}'")
-    #         cls.connect.commit()
+    def get_companies_and_vacancies_count(self):
+        self.cursor.execute("""
+        SELECT companies.name, COUNT(vacancies.id)
+        FROM companies
+        JOIN vacancies ON vacancies.company_id = companies.id
+        GROUP BY companies.name
+        """)
+        return self.cursor.fetchall()
+
+    def get_all_vacancies(self):
+        self.cursor.execute("""
+        SELECT companies.name, vacancies.name, vacancies.salary_min, vacancies.salary_max, vacancies.url
+        FROM vacancies
+        JOIN companies on vacancies.company_id = companies.id
+        """)
+        return self.cursor.fetchall()
+
+    def get_avg_salary(self):
+        self.cursor.execute("""
+        SELECT AVG(vacancies.salary_max)
+        FROM vacancies
+        """)
+        return self.cursor.fetchone()
+
+    def vacancies_with_higher_salary(self):
+        self.cursor.execute(f"""
+        SELECT companies.name, vacancies.name, vacancies.salary_max, vacancies.url
+        FROM vacancies
+        JOIN companies on vacancies.company_id = companies.id
+        WHERE vacancies.salary_max > ({self.get_avg_salary()[0]})
+        """)
+        return self.cursor.fetchall()
+
+    def get_vacancies_with_keyword(self, keyword):
+        self.cursor.execute(f"""
+        SELECT *
+        FROM vacancies
+        WHERE vacancies.name ILIKE '%{keyword}%'
+        """)
+        return self.cursor.fetchall()
 
 
 if __name__ == '__main__':
