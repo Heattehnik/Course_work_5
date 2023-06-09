@@ -62,13 +62,19 @@ def main() -> None:
               f'Зарплата до: {item[4]}\n'
               f'Ссылка на вакансию: {item[5]}\n')
 
-    delete_answer = input('Желаете удалить таблицы из базы данных? (Да\Нет)\n')
-    if delete_answer.lower() == 'да':
-        db.drop_tables()
-        print('Данные успешно удалены, хорошего дня!')
-    else:
-        print('Данные сохранены, хорошего дня!')
+    while True:
+        delete_answer = input('Желаете удалить таблицы из базы данных? (Да/Нет)\n')
+        if delete_answer.lower() == 'да':
+            db.drop_tables()
+            print('Данные успешно удалены, хорошего дня!')
+            break
+        elif delete_answer.lower() == 'нет':
+            print('Данные сохранены, хорошего дня!')
+            break
+        else:
+            print('Да или Нет!')
 
 
 if __name__ == '__main__':
     main()
+
