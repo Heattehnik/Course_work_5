@@ -2,10 +2,14 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 
+# Загружаем переменные окружения из файла .env
 load_dotenv()
 
 
 class DatabaseConnector:
+    """
+    Класс миксин для подключения к базе данных
+    """
     def __init__(self):
         self.__db_address = os.getenv('DATABASE_ADDRESS')
         self.__db_name = os.getenv('DATABASE_NAME')
@@ -20,12 +24,15 @@ class DatabaseConnector:
 
 class DBManager(DatabaseConnector):
     """
-    Класс миксин для подключения к базе данных
+    Класс для работы с базой данных
     """
     def __init__(self) -> None:
         super().__init__()
 
-    def create_tables(self):
+    def create_tables(self) -> None:
+        """
+        Метод для создания необходимых для работы таблиц если они отсутствуют в базе данных
+        """
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS companies (
             id serial PRIMARY KEY NOT NULL,
@@ -47,12 +54,19 @@ class DBManager(DatabaseConnector):
         """)
         self.connect.commit()
 
-    def drop_tables(self):
+    def drop_tables(self) -> None:
+        """
+        Метод для удаления таблиц из базы данных
+        """
         self.cursor.execute('DROP TABLE IF EXISTS vacancies')
         self.cursor.execute('DROP TABLE IF EXISTS companies')
         self.connect.commit()
 
-    def insert_data(self, company, vacancies):
+    def insert_data(self, company: dict, vacancies: dict) -> None:
+        """
+        Метод для добавления данных в таблицы с компаниями и вакансиями.
+        В качестве аргумента принимает словарь с информацией о компании и словарь с вакансиями.
+        """
         self.cursor.execute(f'INSERT INTO companies (id, name, city, description, url) '
                             f'VALUES (%s, %s, %s, %s, %s)',
                             (
@@ -80,7 +94,10 @@ class DBManager(DatabaseConnector):
                                 )
             self.connect.commit()
 
-    def get_companies_and_vacancies_count(self):
+    def get_companies_and_vacancies_count(self) -> list[tuple]:
+        """
+        Метод для запроса в базу данных, который возвращает количество вакансий в каждой компании.
+        """
         self.cursor.execute("""
         SELECT companies.name, COUNT(vacancies.id)
         FROM companies
@@ -89,7 +106,10 @@ class DBManager(DatabaseConnector):
         """)
         return self.cursor.fetchall()
 
-    def get_all_vacancies(self):
+    def get_all_vacancies(self) -> list[tuple]:
+        """
+        Метод для запроса в базу данных, который возвращает все вакансии
+        """
         self.cursor.execute("""
         SELECT companies.name, vacancies.name, vacancies.salary_min, vacancies.salary_max, vacancies.url
         FROM vacancies
@@ -97,14 +117,20 @@ class DBManager(DatabaseConnector):
         """)
         return self.cursor.fetchall()
 
-    def get_avg_salary(self):
+    def get_avg_salary(self) -> tuple:
+        """
+        Метод для запроса в базу данных, который возвращает среднюю зарплату по вакансиям
+        """
         self.cursor.execute("""
         SELECT AVG(vacancies.salary_max)
         FROM vacancies
         """)
         return self.cursor.fetchone()
 
-    def vacancies_with_higher_salary(self):
+    def vacancies_with_higher_salary(self) -> list[tuple]:
+        """
+        Метод для запроса в базу данных, который возвращает вакансии с зарплатой выше средней.
+        """
         self.cursor.execute(f"""
         SELECT companies.name, vacancies.name, vacancies.salary_max, vacancies.url
         FROM vacancies
@@ -113,7 +139,10 @@ class DBManager(DatabaseConnector):
         """)
         return self.cursor.fetchall()
 
-    def get_vacancies_with_keyword(self, keyword):
+    def get_vacancies_with_keyword(self, keyword: str) -> list[tuple]:
+        """
+        Метод для запроса в базу данных, который ищет и возвращает вакансии по ключевому слову
+        """
         self.cursor.execute(f"""
         SELECT *
         FROM vacancies

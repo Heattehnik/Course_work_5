@@ -2,16 +2,20 @@ from classes.database import DBManager
 from utils import get_request
 
 
-def main():
+def main() -> None:
+    # Инициализируем экземпляр класса DBManager и создаем таблицы в базе данных
     db = DBManager()
     db.create_tables()
+    # Список ID компаний которые планируется добавить в базу
     companies_ids = [1740, 15478, 2180, 64174, 84585, 1057, 3776, 1122462, 2136954, 3590333]
+    # Цикл для добавления компаний и вакансий в базу данных
     for company in companies_ids:
         company_url = f'https://api.hh.ru/employers/{company}'
         vacancies_url = f'https://api.hh.ru/vacancies?employer_id={company}&per_page=100'
         company_data = get_request(company_url)
         vacancies_data = get_request(vacancies_url)
         db.insert_data(company_data, vacancies_data)
+    # Получаем список компаний с количеством вакансий в них и выводим в консоль
     count_companies_and_vacancies = db.get_companies_and_vacancies_count()
 
     for item in count_companies_and_vacancies:
@@ -19,7 +23,7 @@ def main():
               f'Количество вакансий: {item[1]}\n')
 
     input('Нажмите Enter для продолжения.')
-
+    # Выводим в консоль список всех вакансий
     all_vacancies = db.get_all_vacancies()
 
     for item in all_vacancies:
@@ -30,12 +34,12 @@ def main():
               f'Ссылка на вакансию: {item[4]}\n')
 
     input('Нажмите Enter для продолжения.')
-
+    # Выводим в консоль среднюю зарплату в вакансиях
     avg_salary = db.get_avg_salary()
     print(f'Средняя зарплата по вакансиям составляет: {int(avg_salary[0])} руб.')
 
     input('Нажмите Enter для продолжения.')
-
+    # Выводим в консоль все вакансии с зарплатой выше средней
     higher_salary = db.vacancies_with_higher_salary()
     print(f'Вакансии с зарплатами выше средней\n')
 
@@ -46,7 +50,7 @@ def main():
               f'Ссылка на вакансию: {item[3]}\n')
 
     input('Нажмите Enter для продолжения.')
-
+    # Ищем и выводим в консоль вакансии по ключевому слову
     keyword = input('Введите ключевое слово для поиска:\n')
     finded_vacancies = db.get_vacancies_with_keyword(keyword)
     print('Вот что нашлось:\n')
